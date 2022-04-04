@@ -16,7 +16,7 @@ namespace Application.Dto
 
         public void Mapping(Profile profile)
         {
-            profile.CreateMap<UpdatePostDto,Post>();
+            profile.CreateMap<UpdatePostDto, Post>();
         }
     }
 }

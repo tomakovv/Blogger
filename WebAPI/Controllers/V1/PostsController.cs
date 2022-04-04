@@ -35,14 +35,14 @@ namespace WebAPI.Controllers.V1
             return Ok(post);
         }
         [HttpGet("Search/{title}")]
-        [SwaggerOperation(summary:"Search posts by Title")]
+        [SwaggerOperation(summary: "Search posts by Title")]
         public IActionResult GetByTitle(string title)
         {
             //string.IsNullOrEmpty(title);
             var posts = _postService.GetPostByTitle(title);
             return Ok(posts);
         }
-        
+
         [SwaggerOperation(Summary = "Create a new post")]
         [HttpPost]
         public IActionResult Create(CreatePostDto newPost)

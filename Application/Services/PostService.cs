@@ -15,19 +15,19 @@ namespace Application.Services
             _postrepository = postRepository;
             _mapper = mapper;
         }
-        public IEnumerable<PostDto> GetAllPosts()
+        public async Task<IEnumerable<PostDto>> GetAllPostsAsync()
         {
-            var posts = _postrepository.GetAll();
+            var posts = await _postrepository.GetAllAsync();
             return _mapper.Map<IEnumerable<PostDto>>(posts);
         }
 
-        public PostDto GetPostById(int id)
+        public async Task<PostDto> GetPostByIdAsync(int id)
         {
-            var post = _postrepository.GetById(id);
+            var post = await _postrepository.GetByIdAsync(id);
             return _mapper.Map<PostDto>(post);
         }
 
-        public PostDto AddNewPost(CreatePostDto newPost)
+        public async Task<PostDto> AddNewPostAsync(CreatePostDto newPost)
         {
             if (string.IsNullOrEmpty(newPost.Title))
             {
@@ -35,25 +35,25 @@ namespace Application.Services
             }
 
             var post = _mapper.Map<Post>(newPost);
-            _postrepository.Add(post);
-            return _mapper.Map<PostDto>(post);
+            var result = await _postrepository.AddAsync(post);
+            return _mapper.Map<PostDto>(result);
         }
-        public void UpdatePost(UpdatePostDto updatePost)
+        public async Task UpdatePostAsync(UpdatePostDto updatePost)
         {
-            var existingPost = _postrepository.GetById(updatePost.Id);
+            var existingPost = await _postrepository.GetByIdAsync(updatePost.Id);
             var post = _mapper.Map(updatePost, existingPost);
-            _postrepository.Update(post);
+            await _postrepository.UpdateAsync(post);
         }
 
-        public void DeletePost(int id)
+        public async Task DeletePostAsync(int id)
         {
-            var post = _postrepository.GetById(id);
-            _postrepository.Delete(post);
+            var post = await _postrepository.GetByIdAsync(id);
+            await _postrepository.DeleteAsync(post);
         }
 
-        public IEnumerable<PostDto> GetPostByTitle(string title)
+        public async Task<IEnumerable<PostDto>> GetPostByTitleAsync(string title)
         {
-            var posts = _postrepository.GetByTitle(title);
+            var posts = await _postrepository.GetByTitleAsync(title);
             return _mapper.Map<IEnumerable<PostDto>>(posts);
         }
     }

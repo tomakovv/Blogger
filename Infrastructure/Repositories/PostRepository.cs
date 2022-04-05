@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,39 +20,40 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
-        public IEnumerable<Post> GetAll()
+        public async Task<IEnumerable<Post>> GetAllAsync()
         {
-            return _context.Posts;
+            return await _context.Posts.ToListAsync();
         }
-        public Post GetById(int id)
+        public async Task<Post> GetByIdAsync(int id)
         {
-            return _context.Posts.FirstOrDefault(x => x.Id == id);
+            return await _context.Posts.SingleOrDefaultAsync(x => x.Id == id);
 
         }
-        public Post Add(Post post)
+        public async Task<Post> AddAsync(Post post)
         {
+            var createdPost = await _context.Posts.AddAsync(post);
+            await _context.SaveChangesAsync();
+            return createdPost.Entity;
             
-            
-            _context.Posts.Add(post);
-            _context.SaveChanges();
-            return post;
         }
-        public void Update(Post post)
+        public async Task UpdateAsync(Post post)
         {
             
             _context.Posts.Update(post);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+            await Task.CompletedTask;
         }
 
-        public void Delete(Post post)
+        public async Task DeleteAsync(Post post)
         {
             _context.Posts.Remove(post);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+            await Task.CompletedTask;
         }
-        public IEnumerable<Post> GetByTitle(string title)
+        public async Task<IEnumerable<Post>> GetByTitleAsync(string title)
         {
-            var posts = _context.Posts.Where(x => x.Title.ToUpper().Contains(title.ToUpper())).ToHashSet();
-            return posts;
+            var posts =  await _context.Posts.Where(x => x.Title.ToUpper().Contains(title.ToUpper())).ToListAsync();
+            return  posts;
         }
 
 

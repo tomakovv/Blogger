@@ -15,9 +15,9 @@ namespace Application.Services
             _postrepository = postRepository;
             _mapper = mapper;
         }
-        public async Task<IEnumerable<PostDto>> GetAllPostsAsync()
+        public async Task<IEnumerable<PostDto>> GetAllPostsAsync(int pageNumber, int pageSize)
         {
-            var posts = await _postrepository.GetAllAsync();
+            var posts = await _postrepository.GetAllAsync(pageNumber, pageSize);
             return _mapper.Map<IEnumerable<PostDto>>(posts);
         }
 
@@ -55,6 +55,11 @@ namespace Application.Services
         {
             var posts = await _postrepository.GetByTitleAsync(title);
             return _mapper.Map<IEnumerable<PostDto>>(posts);
+        }
+
+        public async Task<int> GetAllPostsCountAsync()
+        {
+            return await _postrepository.GetAllCountAsync();
         }
     }
 }

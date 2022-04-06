@@ -2,11 +2,14 @@
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using WebAPI.Filters;
+using WebAPI.Helpers;
+using WebAPI.Wrappers;
 
 namespace WebAPI.Controllers.V1
 
 {
-    
+
     [Route("api/[controller]")]
     [ApiVersion("1.0")]
     [ApiController]
@@ -19,29 +22,30 @@ namespace WebAPI.Controllers.V1
         }
         [SwaggerOperation(Summary = "Retrives all posts")]
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] PaginationFilter paginationFilter)
         {
-            var posts =  await _postService.GetAllPostsAsync();
-            return Ok(posts);
+            var validPaginationFilter = new PaginationFilter(paginationFilter.PageNumber, paginationFilter.PageSize);
+            var posts = await _postService.GetAllPostsAsync(paginationFilter.PageNumber, paginationFilter.PageSize);
+            var totalRecords = await _postService.GetAllPostsCountAsync();
+            return Ok(PaginationHelper.CreatePagedResponse(posts, validPaginationFilter, totalRecords));
         }
         [SwaggerOperation(Summary = "Retrives a specific post by uniqe id")]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var post =  await _postService.GetPostByIdAsync(id);
+            var post = await _postService.GetPostByIdAsync(id);
             if (post == null)
             {
                 return NotFound();
             }
-            return Ok(post);
+            return Ok(new Response<PostDto>(post));
         }
         [HttpGet("Search/{title}")]
         [SwaggerOperation(summary: "Search posts by Title")]
         public async Task<IActionResult> GetByTitle(string title)
         {
-            //string.IsNullOrEmpty(title);
             var posts = await _postService.GetPostByTitleAsync(title);
-            return Ok(posts);
+            return Ok(new Response<IEnumerable<PostDto>>(posts));
         }
 
         [SwaggerOperation(Summary = "Create a new post")]
@@ -49,7 +53,7 @@ namespace WebAPI.Controllers.V1
         public async Task<IActionResult> Create(CreatePostDto newPost)
         {
             var post = await _postService.AddNewPostAsync(newPost);
-            return Created($"api/posts/{post.Id}", post);
+            return Created($"api/posts/{post.Id}", new Response<PostDto>(post));
         }
         [SwaggerOperation(Summary = "Update a existing post")]
         [HttpPut]
